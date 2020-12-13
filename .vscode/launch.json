@@ -1,0 +1,41 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach to Kubernetes Pod (Go)",
+      "type": "cloudcode.kubernetes",
+      "request": "attach",
+      "language": "Go",
+      "debugPort": 2345,
+      "podSelector": {
+        "app": "spacetrouble"
+      },
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "Path to the Remote Directory Containing the Program"
+    },
+    {
+      "name": "Kubernetes: Run/Debug",
+      "type": "cloudcode.kubernetes",
+      "request": "launch",
+      "skaffoldConfig": "${workspaceFolder}/skaffold.yaml",
+      "watch": true,
+      "cleanUp": true,
+      "portForward": true
+    },
+    {
+      "name": "Launch Package",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}"
+    },
+    {
+      "name": "Launch test package",
+      "type": "go",
+      "request": "launch",
+      "mode": "test",
+      "program": "${workspaceFolder}"
+    }
+  ],
+  "compounds": []
+}
