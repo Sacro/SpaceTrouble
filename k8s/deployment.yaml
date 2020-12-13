@@ -1,0 +1,27 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spacetrouble
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spacetrouble
+  template:
+    metadata:
+      labels:
+        app: spacetrouble
+    spec:
+      containers:
+        - name: spacetrouble
+          image: spacetrouble
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              memory: '64Mi'
+              cpu: '250m'
+            limits:
+              memory: '128Mi'
+              cpu: '500m'

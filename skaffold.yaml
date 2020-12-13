@@ -1,0 +1,40 @@
+---
+apiVersion: skaffold/v2beta10
+kind: Config
+build:
+  artifacts:
+    - image: spacetrouble
+      sync:
+        manual:
+          - src: '**/*.go'
+            dest: '.'
+      docker:
+        target: prod
+        cacheFrom:
+          - golang:1.15
+
+  local:
+    useBuildkit: true
+
+profiles:
+  - name: dev
+    activation:
+      - command: dev
+    patches:
+      - op: replace
+        path: /build/artifacts/0/docker/target
+        value: dev-source
+
+  - name: debug
+    activation:
+      - command: debug
+    patches:
+      - op: replace
+        path: /build/artifacts/0/docker/target
+        value: debug-source
+
+  - name: test
+    patches:
+      - op: replace
+        path: /build/artifacts/0/docker/target
+        value: test

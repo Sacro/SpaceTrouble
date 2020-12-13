@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spacetrouble
+spec:
+  selector:
+    app: spacetrouble
+  ports:
+    - port: 3000
