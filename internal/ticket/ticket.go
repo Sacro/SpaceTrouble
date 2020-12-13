@@ -8,6 +8,7 @@ import (
 
 // Ticket contains the data for booking a ticket
 type Ticket struct {
+	ID            string    `json:"id"`
 	FirstName     string    `json:"first_name" validate:"required"`
 	LastName      string    `json:"last_name" validate:"required"`
 	Gender        string    `json:"gender" validate:"required"`
@@ -19,6 +20,7 @@ type Ticket struct {
 
 func Fake(f faker.Faker) Ticket {
 	return Ticket{
+		ID:            f.UUID().V4(),
 		FirstName:     f.Person().FirstName(),
 		LastName:      f.Person().LastName(),
 		Gender:        f.Person().Title(),

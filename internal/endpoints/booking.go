@@ -5,4 +5,6 @@ import (
 )
 
 // BookingHandler provides the handler for /bookings
-func BookingHandler(w http.ResponseWriter, r *http.Request) {}
+func (h Handler) BookingHandler(w http.ResponseWriter, r *http.Request) {
+
+}

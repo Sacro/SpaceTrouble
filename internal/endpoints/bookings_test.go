@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/Sacro/SpaceTrouble/internal/repository"
 )
 
 func TestBookingsEndpoint(t *testing.T) {
@@ -15,7 +17,9 @@ func TestBookingsEndpoint(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(BookingsHandler)
+
+	h := NewHandler(&repository.Repository{})
+	handler := http.HandlerFunc(h.BookingsHandler)
 
 	handler.ServeHTTP(rr, req)
 
