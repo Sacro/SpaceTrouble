@@ -18,8 +18,8 @@ type Ticket struct {
 	LaunchDate    time.Time `json:"launch_date" validate:"required,gt"`
 }
 
-func Fake(f faker.Faker) Ticket {
-	return Ticket{
+func Fake(f faker.Faker) *Ticket {
+	return &Ticket{
 		ID:            f.UUID().V4(),
 		FirstName:     f.Person().FirstName(),
 		LastName:      f.Person().LastName(),

@@ -3,6 +3,7 @@ package repository
 import (
 	"github.com/Sacro/SpaceTrouble/internal/ticket"
 	"github.com/go-pg/pg/v10"
+	"github.com/go-pg/pg/v10/orm"
 )
 
 type Repository struct {
@@ -13,6 +14,21 @@ func New(db *pg.DB) *Repository {
 	return &Repository{
 		db: db,
 	}
+}
+
+func (repo *Repository) createSchema() error {
+	models := []interface{}{
+		(*ticket.Ticket)(nil),
+	}
+
+	for _, model := range models {
+		err := repo.db.Model(model).CreateTable(&orm.CreateTableOptions{})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (repo *Repository) Booking(id string) (*ticket.Ticket, error) {
