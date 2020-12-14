@@ -17,7 +17,13 @@ import (
 func main() {
 
 	db := pg.Connect(&pg.Options{})
+
 	repo := repository.New(db)
+	err := repo.CreateSchema()
+	if err != nil {
+		log.WithError(err).Fatalf("migrating database")
+	}
+
 	handler := endpoints.NewHandler(repo)
 
 	r := mux.NewRouter()

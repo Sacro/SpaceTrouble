@@ -16,7 +16,7 @@ func New(db *pg.DB) *Repository {
 	}
 }
 
-func (repo *Repository) createSchema() error {
+func (repo *Repository) CreateSchema() error {
 	models := []interface{}{
 		(*ticket.Ticket)(nil),
 	}

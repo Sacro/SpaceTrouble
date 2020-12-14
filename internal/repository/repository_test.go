@@ -68,7 +68,7 @@ func (suite *RepositoryTestSuite) SetupTest() {
 	}))
 
 	// Run the migration
-	err = suite.repo.createSchema()
+	err = suite.repo.CreateSchema()
 	suite.Require().Nil(err)
 
 	suite.container = container
