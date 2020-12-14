@@ -33,16 +33,10 @@ func (repo *Repository) CreateSchema() error {
 	return nil
 }
 
-func (repo *Repository) Booking(id string) (*ticket.Ticket, error) {
-	ticket := &ticket.Ticket{
-		ID: id,
-	}
+func (repo *Repository) CreateBooking(ticket *ticket.Ticket) error {
+	_, err := repo.db.Model(ticket).Insert()
 
-	if err := repo.db.Model(ticket).WherePK().Select(); err != nil {
-		return ticket, err
-	}
-
-	return ticket, nil
+	return err
 }
 
 func (repo *Repository) Bookings() ([]ticket.Ticket, error) {

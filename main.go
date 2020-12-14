@@ -46,8 +46,8 @@ func main() {
 	handler := endpoints.NewHandler(repo)
 
 	r := mux.NewRouter()
-	r.HandleFunc("/booking/{id}", handler.BookingHandler)
-	r.HandleFunc("/bookings", handler.BookingsHandler)
+	r.HandleFunc("/bookings", handler.BookingHandler).Methods("POST")
+	r.HandleFunc("/bookings", handler.BookingsHandler).Methods("GET")
 
 	srv := http.Server{
 		Addr: "0.0.0.0:3000",

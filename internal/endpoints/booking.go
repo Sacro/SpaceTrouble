@@ -4,27 +4,35 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/Sacro/SpaceTrouble/internal/ticket"
+	"github.com/apex/log"
+	"github.com/go-playground/validator/v10"
 )
 
 // BookingHandler provides the handler for /bookings
 func (h Handler) BookingHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
+	var ticket *ticket.Ticket
 
-	if id, ok := vars["id"]; ok {
-		booking, err := h.repository.Booking(id)
-		if err != nil {
-			http.Error(w, "booking not found", http.StatusNotFound)
-			return
-		} else {
-			err = json.NewEncoder(w).Encode(booking)
-			if err != nil {
-				http.Error(w, "Unable to marshal booking", http.StatusInternalServerError)
-				return
-			}
-		}
+	err := json.NewDecoder(r.Body).Decode(&ticket)
+	if err != nil {
+		log.WithError(err).Error("decoding body")
+		http.Error(w, "unable to decode body", http.StatusInternalServerError)
+		return
 	}
 
-	http.Error(w, "missing booking id", http.StatusBadRequest)
+	v := validator.New()
 
+	err = v.Struct(ticket)
+	if err != nil {
+		log.WithError(err).Error("verifying ticket")
+		http.Error(w, "unable to verify ticket", http.StatusBadRequest)
+		return
+	}
+
+	err = h.repository.CreateBooking(ticket)
+	if err != nil {
+		log.WithError(err).Error("creating booking")
+		http.Error(w, "unable to create booking", http.StatusInternalServerError)
+		return
+	}
 }
