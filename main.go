@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"flag"
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"time"
 
 	"github.com/Sacro/SpaceTrouble/internal/endpoints"
@@ -12,11 +14,28 @@ import (
 	"github.com/apex/log"
 	"github.com/go-pg/pg/v10"
 	"github.com/gorilla/mux"
+	"github.com/peterbourgon/ff/v3"
 )
 
 func main() {
+	appName := filepath.Base(os.Args[0])
+	fs := flag.NewFlagSet(appName, flag.ExitOnError)
 
-	db := pg.Connect(&pg.Options{})
+	var (
+		username = fs.String("postgres-user", "postgres", "postgres username")
+		password = fs.String("postgres-password", "postgres", "postgres password")
+		hostname = fs.String("postgres-hostname", "localhost", "postgres hostname")
+		database = fs.String("postgres-database", "spacetrouble", "database name")
+	)
+
+	ff.Parse(fs, os.Args[1:], ff.WithEnvVarNoPrefix())
+
+	db := pg.Connect(&pg.Options{
+		Addr:     *hostname,
+		User:     *username,
+		Password: *password,
+		Database: *database,
+	})
 
 	repo := repository.New(db)
 	err := repo.CreateSchema()

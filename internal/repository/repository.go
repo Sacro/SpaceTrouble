@@ -22,7 +22,9 @@ func (repo *Repository) CreateSchema() error {
 	}
 
 	for _, model := range models {
-		err := repo.db.Model(model).CreateTable(&orm.CreateTableOptions{})
+		err := repo.db.Model(model).CreateTable(&orm.CreateTableOptions{
+			IfNotExists: true,
+		})
 		if err != nil {
 			return err
 		}
@@ -48,6 +50,10 @@ func (repo *Repository) Bookings() ([]ticket.Ticket, error) {
 
 	if err := repo.db.Model(&tickets).Select(); err != nil {
 		return nil, err
+	}
+
+	if tickets == nil {
+		tickets = make([]ticket.Ticket, 0)
 	}
 
 	return tickets, nil
