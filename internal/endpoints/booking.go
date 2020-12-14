@@ -3,18 +3,28 @@ package endpoints
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 // BookingHandler provides the handler for /bookings
 func (h Handler) BookingHandler(w http.ResponseWriter, r *http.Request) {
-	bookings, err := h.repository.Bookings()
-	if err != nil {
-		http.Error(w, "unable to retrieve bookings", http.StatusInternalServerError)
-		return
+	vars := mux.Vars(r)
+
+	if id, ok := vars["id"]; ok {
+		booking, err := h.repository.Booking(id)
+		if err != nil {
+			http.Error(w, "booking not found", http.StatusNotFound)
+			return
+		} else {
+			err = json.NewEncoder(w).Encode(booking)
+			if err != nil {
+				http.Error(w, "Unable to marshal booking", http.StatusInternalServerError)
+				return
+			}
+		}
 	}
 
-	err = json.NewEncoder(w).Encode(bookings)
-	if err != nil {
-		http.Error(w, "unable to marshall bookings", http.StatusInternalServerError)
-	}
+	http.Error(w, "missing booking id", http.StatusBadRequest)
+
 }
