@@ -1,5 +1,7 @@
 package spacex
 
+import "time"
+
 type LaunchPads []LaunchPadElement
 
 type LaunchPadElement struct {
@@ -22,9 +24,9 @@ type LaunchPadElement struct {
 	Failures           []Failure     `json:"failures"`
 	FlightNumber       int64         `json:"flight_number"`
 	Name               string        `json:"name"`
-	DateUTC            string        `json:"date_utc"`
+	DateUTC            time.Time     `json:"date_utc"`
 	DateUnix           int64         `json:"date_unix"`
-	DateLocal          string        `json:"date_local"`
+	DateLocal          time.Time     `json:"date_local"`
 	DatePrecision      DatePrecision `json:"date_precision"`
 	Upcoming           bool          `json:"upcoming"`
 	Cores              []Core        `json:"cores"`

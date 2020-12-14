@@ -29,6 +29,31 @@ func (h Handler) BookingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	launches, err := h.getLaunches()
+	if err != nil {
+		log.WithError(err).Error("getting launches")
+		http.Error(w, "unable to get launches", http.StatusInternalServerError)
+		return
+	}
+
+	for _, launch := range launches {
+		// Don't care about past launches
+		if !launch.Upcoming {
+			continue
+		}
+
+		// Check for the same launchpad
+		if ticket.LaunchpadID == string(launch.Launchpad) {
+			// Check for conflicting launch date
+			if ticket.LaunchDate == launch.DateUTC {
+				http.Error(w, "conflicting launch", http.StatusConflict)
+				return
+			}
+		}
+
+		continue
+	}
+
 	err = h.repository.CreateBooking(ticket)
 	if err != nil {
 		log.WithError(err).Error("creating booking")

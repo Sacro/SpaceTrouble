@@ -37,13 +37,17 @@ func main() {
 		Database: *database,
 	})
 
+	client := &http.Client{
+		Timeout: time.Second * 15,
+	}
+
 	repo := repository.New(db)
 	err := repo.CreateSchema()
 	if err != nil {
 		log.WithError(err).Fatalf("migrating database")
 	}
 
-	handler := endpoints.NewHandler(repo)
+	handler := endpoints.NewHandler(client, repo)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/bookings", handler.BookingHandler).Methods("POST")
