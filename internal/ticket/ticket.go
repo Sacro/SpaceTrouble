@@ -8,7 +8,7 @@ import (
 
 // Ticket contains the data for booking a ticket
 type Ticket struct {
-	ID            string    `json:"id"`
+	ID            string    `json:"id" pg:"type:uuid,default:gen_random_uuid()"`
 	FirstName     string    `json:"first_name" validate:"required"`
 	LastName      string    `json:"last_name" validate:"required"`
 	Gender        string    `json:"gender" validate:"required"`
