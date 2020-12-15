@@ -9,12 +9,16 @@ type MockRepository struct {
 	mock.Mock
 }
 
-func (m *MockRepository) CreateBooking(*ticket.Ticket) error {
-	return nil
+func (m *MockRepository) CreateBooking(ticket *ticket.Ticket) error {
+	args := m.Called(ticket)
+
+	return args.Error(0)
 }
 
 func (m *MockRepository) Bookings() ([]ticket.Ticket, error) {
-	return nil, nil
+	args := m.Called()
+
+	return args.Get(0).([]ticket.Ticket), args.Error(1)
 }
 
 var _ TicketRepository = &MockRepository{}
