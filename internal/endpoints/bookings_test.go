@@ -18,7 +18,9 @@ func TestBookingsEndpoint(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	h := NewHandler(&http.Client{}, &repository.Repository{})
+	db := &repository.MockRepository{}
+
+	h := NewHandler(&http.Client{}, db)
 	handler := http.HandlerFunc(h.BookingsHandler)
 
 	handler.ServeHTTP(rr, req)

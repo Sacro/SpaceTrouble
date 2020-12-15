@@ -17,7 +17,7 @@ type RepositoryTestSuite struct {
 	suite.Suite
 
 	container testcontainers.Container
-	repo      *Repository
+	repo      *TicketRepo
 }
 
 func TestRepositoryTestSuite(t *testing.T) {

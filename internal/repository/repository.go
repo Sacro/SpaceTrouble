@@ -6,17 +6,25 @@ import (
 	"github.com/go-pg/pg/v10/orm"
 )
 
-type Repository struct {
+type TicketRepository interface {
+	CreateBooking(*ticket.Ticket) error
+	Bookings() ([]ticket.Ticket, error)
+}
+
+// Ensure the implementation matches the interface
+var _ TicketRepository = &TicketRepo{}
+
+type TicketRepo struct {
 	db *pg.DB
 }
 
-func New(db *pg.DB) *Repository {
-	return &Repository{
+func New(db *pg.DB) *TicketRepo {
+	return &TicketRepo{
 		db: db,
 	}
 }
 
-func (repo *Repository) CreateSchema() error {
+func (repo *TicketRepo) CreateSchema() error {
 	models := []interface{}{
 		(*ticket.Ticket)(nil),
 	}
@@ -33,13 +41,13 @@ func (repo *Repository) CreateSchema() error {
 	return nil
 }
 
-func (repo *Repository) CreateBooking(ticket *ticket.Ticket) error {
+func (repo *TicketRepo) CreateBooking(ticket *ticket.Ticket) error {
 	_, err := repo.db.Model(ticket).Insert()
 
 	return err
 }
 
-func (repo *Repository) Bookings() ([]ticket.Ticket, error) {
+func (repo *TicketRepo) Bookings() ([]ticket.Ticket, error) {
 	var tickets []ticket.Ticket
 
 	if err := repo.db.Model(&tickets).Select(); err != nil {

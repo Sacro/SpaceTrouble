@@ -9,10 +9,10 @@ import (
 
 type Handler struct {
 	client     *http.Client
-	repository *repository.Repository
+	repository repository.TicketRepository
 }
 
-func NewHandler(c *http.Client, r *repository.Repository) *Handler {
+func NewHandler(c *http.Client, r repository.TicketRepository) *Handler {
 	return &Handler{
 		client:     c,
 		repository: r,
