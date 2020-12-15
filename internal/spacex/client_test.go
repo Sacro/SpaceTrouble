@@ -1,6 +1,7 @@
 package spacex
 
 import (
+	"context"
 	"net/http"
 	"testing"
 	"time"
@@ -13,7 +14,7 @@ func TestClient(t *testing.T) {
 		Timeout: time.Second * 10,
 	}
 
-	launches, err := GetLaunches(client)
+	launches, err := GetLaunches(context.Background(), client)
 	assert.Nil(t, err)
 
 	assert.NotNil(t, launches)

@@ -9,8 +9,8 @@ type MockRepository struct {
 	mock.Mock
 }
 
-func (m *MockRepository) CreateBooking(ticket *ticket.Ticket) error {
-	args := m.Called(ticket)
+func (m *MockRepository) CreateBooking(t *ticket.Ticket) error {
+	args := m.Called(t)
 
 	return args.Error(0)
 }

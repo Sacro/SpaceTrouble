@@ -41,8 +41,8 @@ func (repo *TicketRepo) CreateSchema() error {
 	return nil
 }
 
-func (repo *TicketRepo) CreateBooking(ticket *ticket.Ticket) error {
-	_, err := repo.db.Model(ticket).Insert()
+func (repo *TicketRepo) CreateBooking(t *ticket.Ticket) error {
+	_, err := repo.db.Model(t).Insert()
 
 	return err
 }

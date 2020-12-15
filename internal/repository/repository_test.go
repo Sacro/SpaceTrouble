@@ -24,17 +24,13 @@ func TestRepositoryTestSuite(t *testing.T) {
 	suite.Run(t, new(RepositoryTestSuite))
 }
 
-func (suite *RepositoryTestSuite) SetupTest() {
+func (s *RepositoryTestSuite) SetupTest() {
 	var (
 		ctx      = context.Background()
 		user     = "postgres"
 		password = "password"
 		port     = "5432/tcp"
 		db       = "spacetrouble"
-
-		// dbURL = func(port nat.Port) string {
-		// 	return fmt.Sprintf("postgres://%s:%s@localhost:%s/%s?sslmode=disable", user, password, port, db)
-		// }
 	)
 
 	req := testcontainers.GenericContainerRequest{
@@ -52,15 +48,15 @@ func (suite *RepositoryTestSuite) SetupTest() {
 		Started: true,
 	}
 	container, err := testcontainers.GenericContainer(ctx, req)
-	suite.Require().Nil(err)
+	s.Require().Nil(err)
 
 	// Get postgres port
 	mappedPort, err := container.MappedPort(ctx, nat.Port(port))
 
-	suite.Require().Nil(err)
+	s.Require().Nil(err)
 
 	// Create a connection to the db
-	suite.repo = New(pg.Connect(&pg.Options{
+	s.repo = New(pg.Connect(&pg.Options{
 		Addr:     "127.0.0.1:" + mappedPort.Port(),
 		Database: db,
 		Password: password,
@@ -68,21 +64,22 @@ func (suite *RepositoryTestSuite) SetupTest() {
 	}))
 
 	// Run the migration
-	err = suite.repo.CreateSchema()
-	suite.Require().Nil(err)
+	err = s.repo.CreateSchema()
+	s.Require().Nil(err)
 
-	suite.container = container
+	s.container = container
 }
 
-func (suite *RepositoryTestSuite) TearDownTest() {
-	suite.container.Terminate(context.Background())
+func (s *RepositoryTestSuite) TearDownTest() {
+	err := s.container.Terminate(context.Background())
+	s.Assert().Nil(err)
 }
 
-func (suite *RepositoryTestSuite) TestInsertSingleTicket() {
+func (s *RepositoryTestSuite) TestInsertSingleTicket() {
 	f := faker.New()
 
-	result, err := suite.repo.db.Model(ticket.Fake(f)).Insert()
-	suite.Assert().Nil(err)
+	result, err := s.repo.db.Model(ticket.Fake(f)).Insert()
+	s.Assert().Nil(err)
 
-	suite.Assert().Equal(result.RowsAffected(), 1)
+	s.Assert().Equal(result.RowsAffected(), 1)
 }

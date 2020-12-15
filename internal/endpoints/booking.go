@@ -11,9 +11,9 @@ import (
 
 // BookingHandler provides the handler for /bookings
 func (h Handler) BookingHandler(w http.ResponseWriter, r *http.Request) {
-	var ticket *ticket.Ticket
+	var fakeTicket *ticket.Ticket
 
-	err := json.NewDecoder(r.Body).Decode(&ticket)
+	err := json.NewDecoder(r.Body).Decode(&fakeTicket)
 	if err != nil {
 		log.WithError(err).Error("decoding body")
 		http.Error(w, "unable to decode body", http.StatusInternalServerError)
@@ -22,7 +22,7 @@ func (h Handler) BookingHandler(w http.ResponseWriter, r *http.Request) {
 
 	v := validator.New()
 
-	err = v.Struct(ticket)
+	err = v.Struct(fakeTicket)
 	if err != nil {
 		log.WithError(err).Error("verifying ticket")
 		http.Error(w, "unable to verify ticket", http.StatusBadRequest)
@@ -43,9 +43,9 @@ func (h Handler) BookingHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Check for the same launchpad
-		if ticket.LaunchpadID == string(launch.Launchpad) {
+		if fakeTicket.LaunchpadID == string(launch.Launchpad) {
 			// Check for conflicting launch date
-			if ticket.LaunchDate == launch.DateUTC {
+			if fakeTicket.LaunchDate == launch.DateUTC {
 				http.Error(w, "conflicting launch", http.StatusConflict)
 				return
 			}
@@ -54,7 +54,7 @@ func (h Handler) BookingHandler(w http.ResponseWriter, r *http.Request) {
 		continue
 	}
 
-	err = h.repository.CreateBooking(ticket)
+	err = h.repository.CreateBooking(fakeTicket)
 	if err != nil {
 		log.WithError(err).Error("creating booking")
 		http.Error(w, "unable to create booking", http.StatusInternalServerError)

@@ -28,7 +28,10 @@ func main() {
 		database = fs.String("postgres-database", "spacetrouble", "database name")
 	)
 
-	ff.Parse(fs, os.Args[1:], ff.WithEnvVarNoPrefix())
+	err := ff.Parse(fs, os.Args[1:], ff.WithEnvVarNoPrefix())
+	if err != nil {
+		log.WithError(err).Fatal("parsing arguments")
+	}
 
 	db := pg.Connect(&pg.Options{
 		Addr:     *hostname,
@@ -42,7 +45,7 @@ func main() {
 	}
 
 	repo := repository.New(db)
-	err := repo.CreateSchema()
+	err = repo.CreateSchema()
 	if err != nil {
 		log.WithError(err).Fatalf("migrating database")
 	}
@@ -65,7 +68,7 @@ func main() {
 
 	// Run our server in a goroutine so that it doesn't block.
 	go func() {
-		if err := srv.ListenAndServe(); err != nil {
+		if err = srv.ListenAndServe(); err != nil {
 			log.WithError(err).Fatal("srv.ListenAndServe")
 		}
 	}()
@@ -79,13 +82,20 @@ func main() {
 	<-c
 
 	// Create a deadline to wait for.
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
+	timeout := time.Second * 15
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	// Doesn't block if no connections, but will otherwise wait
 	// until the timeout deadline.
-	srv.Shutdown(ctx)
+	err = srv.Shutdown(ctx)
+	if err != nil {
+		log.WithError(err).Fatal("shutting down server")
+	}
 
 	log.Info("shutting down")
-	os.Exit(0)
+
+	go func() {
+		os.Exit(0)
+	}()
 }

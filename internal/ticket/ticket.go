@@ -19,6 +19,8 @@ type Ticket struct {
 }
 
 func Fake(f faker.Faker) *Ticket {
+	oneDay := time.Hour * 24
+
 	return &Ticket{
 		ID:            f.UUID().V4(),
 		FirstName:     f.Person().FirstName(),
@@ -27,6 +29,6 @@ func Fake(f faker.Faker) *Ticket {
 		Birthday:      f.Time().Time(time.Now().UTC()),
 		LaunchpadID:   f.UUID().V4(),
 		DestinationID: f.UUID().V4(),
-		LaunchDate:    time.Now().Add(time.Hour * 24),
+		LaunchDate:    time.Now().Add(oneDay),
 	}
 }

@@ -17,9 +17,9 @@ import (
 
 func TestBookingEndpointValidData(t *testing.T) {
 	f := faker.New()
-	ticket := ticket.Fake(f)
+	fakeTicket := ticket.Fake(f)
 
-	body, err := json.Marshal(ticket)
+	body, err := json.Marshal(fakeTicket)
 	assert.Nil(t, err)
 
 	req, err := http.NewRequestWithContext(context.Background(), "POST", "/bookings", bytes.NewBuffer(body))
@@ -45,9 +45,9 @@ func TestBookingEndpointValidData(t *testing.T) {
 }
 
 func TestBookingEndpointInvalidData(t *testing.T) {
-	ticket := ticket.Ticket{}
+	fakeTicket := ticket.Ticket{}
 
-	body, err := json.Marshal(ticket)
+	body, err := json.Marshal(fakeTicket)
 	assert.Nil(t, err)
 
 	req, err := http.NewRequestWithContext(context.Background(), "POST", "/bookings", bytes.NewBuffer(body))

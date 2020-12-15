@@ -34,9 +34,11 @@ func TestBookingsEndpointNoResults(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusOK)
 	}
+	result := rr.Result()
+	defer result.Body.Close()
 
 	var response []ticket.Ticket
-	err = json.NewDecoder(rr.Result().Body).Decode(&response)
+	err = json.NewDecoder(result.Body).Decode(&response)
 	assert.Nil(t, err)
 
 	assert.Equal(t, len(response), 0)
@@ -69,9 +71,11 @@ func TestBookingsEndpointOneResult(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusOK)
 	}
+	result := rr.Result()
+	defer result.Body.Close()
 
 	var response []ticket.Ticket
-	err = json.NewDecoder(rr.Result().Body).Decode(&response)
+	err = json.NewDecoder(result.Body).Decode(&response)
 	assert.Nil(t, err)
 
 	assert.Equal(t, len(response), 1)
@@ -107,8 +111,11 @@ func TestBookingsEndpointMultipleResults(t *testing.T) {
 			status, http.StatusOK)
 	}
 
+	result := rr.Result()
+	defer result.Body.Close()
+
 	var response []ticket.Ticket
-	err = json.NewDecoder(rr.Result().Body).Decode(&response)
+	err = json.NewDecoder(result.Body).Decode(&response)
 	assert.Nil(t, err)
 
 	assert.Equal(t, len(response), 3)

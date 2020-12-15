@@ -2,7 +2,7 @@ package spacex
 
 import "time"
 
-type LaunchPads []LaunchPadElement
+type LaunchPads []*LaunchPadElement
 
 type LaunchPadElement struct {
 	Fairings           *Fairings     `json:"fairings"`

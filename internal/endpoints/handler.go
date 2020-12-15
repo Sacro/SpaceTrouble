@@ -1,6 +1,7 @@
 package endpoints
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/Sacro/SpaceTrouble/internal/repository"
@@ -20,5 +21,5 @@ func NewHandler(c *http.Client, r repository.TicketRepository) *Handler {
 }
 
 func (h *Handler) getLaunches() (spacex.LaunchPads, error) {
-	return spacex.GetLaunches(h.client)
+	return spacex.GetLaunches(context.Background(), h.client)
 }
