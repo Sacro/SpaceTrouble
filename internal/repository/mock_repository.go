@@ -21,4 +21,10 @@ func (m *MockRepository) Bookings() ([]ticket.Ticket, error) {
 	return args.Get(0).([]ticket.Ticket), args.Error(1)
 }
 
+func (m *MockRepository) DeleteBooking(id string) error {
+	args := m.Called(id)
+
+	return args.Error(0)
+}
+
 var _ TicketRepository = &MockRepository{}

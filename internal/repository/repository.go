@@ -9,6 +9,7 @@ import (
 type TicketRepository interface {
 	CreateBooking(*ticket.Ticket) error
 	Bookings() ([]ticket.Ticket, error)
+	DeleteBooking(string) error
 }
 
 // Ensure the implementation matches the interface
@@ -59,4 +60,18 @@ func (repo *TicketRepo) Bookings() ([]ticket.Ticket, error) {
 	}
 
 	return tickets, nil
+}
+
+func (repo *TicketRepo) DeleteBooking(id string) error {
+	t := ticket.Ticket{
+		ID: id,
+	}
+
+	_, err := repo.db.Model(t).WherePK().Delete()
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
