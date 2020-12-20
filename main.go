@@ -11,6 +11,7 @@ import (
 
 	"github.com/Sacro/SpaceTrouble/internal/endpoints"
 	"github.com/Sacro/SpaceTrouble/internal/repository"
+	"github.com/Sacro/SpaceTrouble/internal/spacex"
 	"github.com/apex/log"
 	"github.com/go-pg/pg/v10"
 	"github.com/gorilla/mux"
@@ -50,7 +51,9 @@ func main() {
 		log.WithError(err).Fatalf("migrating database")
 	}
 
-	handler := endpoints.NewHandler(client, repo)
+	launchClient := &spacex.HttpLaunchClient{}
+
+	handler := endpoints.NewHandler(client, launchClient, repo)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/bookings", handler.BookingHandler).Methods("POST")

@@ -1,19 +1,25 @@
 package endpoints
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 
+	"github.com/Sacro/SpaceTrouble/internal/spacex"
 	"github.com/Sacro/SpaceTrouble/internal/ticket"
 	"github.com/apex/log"
 	"github.com/go-playground/validator/v10"
 )
 
+var ErrDateConflict = errors.New("launch date conflict")
+
 // BookingHandler provides the handler for /bookings
 func (h Handler) BookingHandler(w http.ResponseWriter, r *http.Request) {
-	var fakeTicket *ticket.Ticket
+	ctx := context.Background()
+	var t *ticket.Ticket
 
-	err := json.NewDecoder(r.Body).Decode(&fakeTicket)
+	err := json.NewDecoder(r.Body).Decode(&t)
 	if err != nil {
 		log.WithError(err).Error("decoding body")
 		http.Error(w, "unable to decode body", http.StatusInternalServerError)
@@ -22,20 +28,36 @@ func (h Handler) BookingHandler(w http.ResponseWriter, r *http.Request) {
 
 	v := validator.New()
 
-	err = v.Struct(fakeTicket)
+	err = v.Struct(t)
 	if err != nil {
 		log.WithError(err).Error("verifying ticket")
 		http.Error(w, "unable to verify ticket", http.StatusBadRequest)
 		return
 	}
 
-	launches, err := h.getLaunches()
+	launches, err := h.launchClient.GetLaunches(ctx)
 	if err != nil {
 		log.WithError(err).Error("getting launches")
 		http.Error(w, "unable to get launches", http.StatusInternalServerError)
 		return
 	}
 
+	conflict := checkForLaunchConflicts(t, launches)
+
+	if conflict {
+		http.Error(w, "conflicting launch", http.StatusConflict)
+		return
+	}
+
+	err = h.repository.CreateBooking(t)
+	if err != nil {
+		log.WithError(err).Error("creating booking")
+		http.Error(w, "unable to create booking", http.StatusInternalServerError)
+		return
+	}
+}
+
+func checkForLaunchConflicts(t *ticket.Ticket, launches spacex.LaunchPads) bool {
 	for _, launch := range launches {
 		// Don't care about past launches
 		if !launch.Upcoming {
@@ -43,21 +65,13 @@ func (h Handler) BookingHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Check for the same launchpad
-		if fakeTicket.LaunchpadID == string(launch.Launchpad) {
+		if t.LaunchpadID == string(launch.Launchpad) {
 			// Check for conflicting launch date
-			if fakeTicket.LaunchDate == launch.DateUTC {
-				http.Error(w, "conflicting launch", http.StatusConflict)
-				return
+			if t.LaunchDate == launch.DateUTC {
+				return true
 			}
 		}
-
-		continue
 	}
 
-	err = h.repository.CreateBooking(fakeTicket)
-	if err != nil {
-		log.WithError(err).Error("creating booking")
-		http.Error(w, "unable to create booking", http.StatusInternalServerError)
-		return
-	}
+	return false
 }

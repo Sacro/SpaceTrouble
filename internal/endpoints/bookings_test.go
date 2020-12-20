@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/Sacro/SpaceTrouble/internal/repository"
+	"github.com/Sacro/SpaceTrouble/internal/spacex"
 	"github.com/Sacro/SpaceTrouble/internal/ticket"
 	"github.com/jaswdr/faker"
 	"github.com/stretchr/testify/assert"
@@ -25,7 +26,9 @@ func TestBookingsEndpointNoResults(t *testing.T) {
 	db := &repository.MockRepository{}
 	db.On("Bookings").Return([]ticket.Ticket{}, nil)
 
-	h := NewHandler(&http.Client{}, db)
+	lc := &spacex.MockLaunchClient{}
+
+	h := NewHandler(&http.Client{}, lc, db)
 	handler := http.HandlerFunc(h.BookingsHandler)
 
 	handler.ServeHTTP(rr, req)
@@ -62,7 +65,9 @@ func TestBookingsEndpointOneResult(t *testing.T) {
 		*ticket.Fake(f),
 	}, nil)
 
-	h := NewHandler(&http.Client{}, db)
+	lc := &spacex.MockLaunchClient{}
+
+	h := NewHandler(&http.Client{}, lc, db)
 	handler := http.HandlerFunc(h.BookingsHandler)
 
 	handler.ServeHTTP(rr, req)
@@ -101,7 +106,9 @@ func TestBookingsEndpointMultipleResults(t *testing.T) {
 		*ticket.Fake(f),
 	}, nil)
 
-	h := NewHandler(&http.Client{}, db)
+	lc := &spacex.MockLaunchClient{}
+
+	h := NewHandler(&http.Client{}, lc, db)
 	handler := http.HandlerFunc(h.BookingsHandler)
 
 	handler.ServeHTTP(rr, req)

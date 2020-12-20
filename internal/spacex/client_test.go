@@ -10,11 +10,15 @@ import (
 )
 
 func TestClient(t *testing.T) {
-	client := &http.Client{
+	client := http.Client{
 		Timeout: time.Second * 10,
 	}
 
-	launches, err := GetLaunches(context.Background(), client)
+	c := HttpLaunchClient{
+		Client: client,
+	}
+
+	launches, err := c.GetLaunches(context.Background())
 	assert.Nil(t, err)
 
 	assert.NotNil(t, launches)

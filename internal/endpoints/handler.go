@@ -1,25 +1,26 @@
 package endpoints
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/Sacro/SpaceTrouble/internal/repository"
 	"github.com/Sacro/SpaceTrouble/internal/spacex"
 )
 
+type LaunchHandler interface {
+	getLaunches() (spacex.LaunchPads, error)
+}
+
 type Handler struct {
-	client     *http.Client
-	repository repository.TicketRepository
+	client       *http.Client
+	launchClient spacex.LaunchClient
+	repository   repository.TicketRepository
 }
 
-func NewHandler(c *http.Client, r repository.TicketRepository) *Handler {
+func NewHandler(c *http.Client, lc spacex.LaunchClient, r repository.TicketRepository) *Handler {
 	return &Handler{
-		client:     c,
-		repository: r,
+		client:       c,
+		launchClient: lc,
+		repository:   r,
 	}
-}
-
-func (h *Handler) getLaunches() (spacex.LaunchPads, error) {
-	return spacex.GetLaunches(context.Background(), h.client)
 }

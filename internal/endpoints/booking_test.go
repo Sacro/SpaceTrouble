@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/Sacro/SpaceTrouble/internal/repository"
+	"github.com/Sacro/SpaceTrouble/internal/spacex"
 	"github.com/Sacro/SpaceTrouble/internal/ticket"
 	"github.com/jaswdr/faker"
 	"github.com/stretchr/testify/assert"
@@ -31,7 +32,9 @@ func TestBookingEndpointValidData(t *testing.T) {
 	db := &repository.MockRepository{}
 	db.On("CreateBooking", mock.Anything).Return(nil)
 
-	h := NewHandler(&http.Client{}, db)
+	lc := &spacex.MockLaunchClient{}
+
+	h := NewHandler(&http.Client{}, lc, db)
 	handler := http.HandlerFunc(h.BookingHandler)
 
 	handler.ServeHTTP(rr, req)
@@ -57,13 +60,45 @@ func TestBookingEndpointInvalidData(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	db := &repository.MockRepository{}
+	lc := &spacex.MockLaunchClient{}
 
-	h := NewHandler(&http.Client{}, db)
+	h := NewHandler(&http.Client{}, lc, db)
 	handler := http.HandlerFunc(h.BookingHandler)
 
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+
+	db.AssertExpectations(t)
+}
+
+func TestBookingEndpointConflictingData(t *testing.T) {
+	f := faker.New()
+	fakeTicket := ticket.Fake(f)
+
+	body, err := json.Marshal(fakeTicket)
+	assert.Nil(t, err)
+
+	req, err := http.NewRequestWithContext(context.Background(), "POST", "/bookings", bytes.NewBuffer(body))
+
+	assert.Nil(t, err)
+
+	rr := httptest.NewRecorder()
+
+	db := &repository.MockRepository{}
+	db.On("CreateBooking", mock.Anything).Return(nil)
+
+	lc := &spacex.MockLaunchClient{}
+
+	h := NewHandler(&http.Client{}, lc, db)
+	handler := http.HandlerFunc(h.BookingHandler)
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusConflict {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusOK)
 	}

@@ -4,9 +4,26 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+
+	"github.com/stretchr/testify/mock"
 )
 
-func GetLaunches(ctx context.Context, c *http.Client) (LaunchPads, error) {
+type LaunchClient interface {
+	GetLaunches(context.Context) (LaunchPads, error)
+}
+
+type HttpLaunchClient struct {
+	http.Client
+}
+
+type MockLaunchClient struct {
+	mock.Mock
+}
+
+// Ensure the implementation matches the interface
+var _ LaunchClient = &HttpLaunchClient{}
+
+func (c *HttpLaunchClient) GetLaunches(ctx context.Context) (LaunchPads, error) {
 	req, err := http.NewRequestWithContext(ctx, "GET", "https://api.spacexdata.com/v4/launches", nil)
 	if err != nil {
 		return nil, err
@@ -26,4 +43,13 @@ func GetLaunches(ctx context.Context, c *http.Client) (LaunchPads, error) {
 	}
 
 	return launches, nil
+}
+
+// Ensure the implementation matches the interface
+var _ LaunchClient = &MockLaunchClient{}
+
+func (m *MockLaunchClient) GetLaunches(ctx context.Context) (LaunchPads, error) {
+	args := m.Called()
+
+	return args.Get(0).(LaunchPads), args.Error(1)
 }
