@@ -12,7 +12,7 @@ type LaunchClient interface {
 	GetLaunches(context.Context) (LaunchPads, error)
 }
 
-type HttpLaunchClient struct {
+type HTTPLaunchClient struct {
 	http.Client
 }
 
@@ -21,9 +21,9 @@ type MockLaunchClient struct {
 }
 
 // Ensure the implementation matches the interface
-var _ LaunchClient = &HttpLaunchClient{}
+var _ LaunchClient = &HTTPLaunchClient{}
 
-func (c *HttpLaunchClient) GetLaunches(ctx context.Context) (LaunchPads, error) {
+func (c *HTTPLaunchClient) GetLaunches(ctx context.Context) (LaunchPads, error) {
 	req, err := http.NewRequestWithContext(ctx, "GET", "https://api.spacexdata.com/v4/launches", nil)
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (c *HttpLaunchClient) GetLaunches(ctx context.Context) (LaunchPads, error) 
 var _ LaunchClient = &MockLaunchClient{}
 
 func (m *MockLaunchClient) GetLaunches(ctx context.Context) (LaunchPads, error) {
-	args := m.Called()
+	args := m.Called(ctx)
 
 	return args.Get(0).(LaunchPads), args.Error(1)
 }

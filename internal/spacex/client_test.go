@@ -14,7 +14,7 @@ func TestClient(t *testing.T) {
 		Timeout: time.Second * 10,
 	}
 
-	c := HttpLaunchClient{
+	c := HTTPLaunchClient{
 		Client: client,
 	}
 

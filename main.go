@@ -51,7 +51,7 @@ func main() {
 		log.WithError(err).Fatalf("migrating database")
 	}
 
-	launchClient := &spacex.HttpLaunchClient{}
+	launchClient := &spacex.HTTPLaunchClient{}
 
 	handler := endpoints.NewHandler(client, launchClient, repo)
 

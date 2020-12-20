@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/Sacro/SpaceTrouble/internal/spacex"
 	"github.com/Sacro/SpaceTrouble/internal/ticket"
@@ -67,7 +68,8 @@ func checkForLaunchConflicts(t *ticket.Ticket, launches spacex.LaunchPads) bool 
 		// Check for the same launchpad
 		if t.LaunchpadID == string(launch.Launchpad) {
 			// Check for conflicting launch date
-			if t.LaunchDate == launch.DateUTC {
+
+			if t.LaunchDate.Sub(launch.DateUTC) < time.Hour*24 {
 				return true
 			}
 		}

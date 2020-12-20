@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/Sacro/SpaceTrouble/internal/repository"
 	"github.com/Sacro/SpaceTrouble/internal/spacex"
@@ -33,6 +34,7 @@ func TestBookingEndpointValidData(t *testing.T) {
 	db.On("CreateBooking", mock.Anything).Return(nil)
 
 	lc := &spacex.MockLaunchClient{}
+	lc.On("GetLaunches", mock.Anything).Return(spacex.LaunchPads{}, nil)
 
 	h := NewHandler(&http.Client{}, lc, db)
 	handler := http.HandlerFunc(h.BookingHandler)
@@ -45,6 +47,7 @@ func TestBookingEndpointValidData(t *testing.T) {
 	}
 
 	db.AssertExpectations(t)
+	lc.AssertExpectations(t)
 }
 
 func TestBookingEndpointInvalidData(t *testing.T) {
@@ -69,10 +72,11 @@ func TestBookingEndpointInvalidData(t *testing.T) {
 
 	if status := rr.Code; status != http.StatusBadRequest {
 		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
+			status, http.StatusBadRequest)
 	}
 
 	db.AssertExpectations(t)
+	lc.AssertExpectations(t)
 }
 
 func TestBookingEndpointConflictingData(t *testing.T) {
@@ -89,9 +93,16 @@ func TestBookingEndpointConflictingData(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	db := &repository.MockRepository{}
-	db.On("CreateBooking", mock.Anything).Return(nil)
 
 	lc := &spacex.MockLaunchClient{}
+
+	conflictPad := &spacex.LaunchPadElement{
+		Launchpad: spacex.Launchpad(fakeTicket.LaunchpadID),
+		Upcoming:  true,
+		DateUTC:   time.Now(),
+	}
+
+	lc.On("GetLaunches", mock.Anything).Return(spacex.LaunchPads{conflictPad}, nil)
 
 	h := NewHandler(&http.Client{}, lc, db)
 	handler := http.HandlerFunc(h.BookingHandler)
@@ -100,8 +111,9 @@ func TestBookingEndpointConflictingData(t *testing.T) {
 
 	if status := rr.Code; status != http.StatusConflict {
 		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
+			status, http.StatusConflict)
 	}
 
 	db.AssertExpectations(t)
+	lc.AssertExpectations(t)
 }
